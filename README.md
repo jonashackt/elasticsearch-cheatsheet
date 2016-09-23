@@ -98,6 +98,57 @@ curl -XPUT localhost:9200/_settings -d '{
 ```
 
 
+## Upgrade elasticsearch from 1.x to 2.x
+
+
+Only start the upgrade-process, if status is green! check with:
+```
+curl -XGET 'http://localhost:9200/_cluster/health?pretty=true'
+```
+
+When not green, first make sure it get´s there! Then start.
+
+
+1. deactivate shard allocation:
+```
+curl -XPUT http://localhost:9200/_cluster/settings -d '{
+  "persistent": {
+    "cluster.routing.allocation.enable": "none"
+  }
+}'
+```
+
+2. flush for rolling cluster restart
+```
+curl -XPOST "http://localhost:9200/elasticsearch/_flush/synced"
+```
+
+3. stop elasticsearch
+```
+sudo service elasticsearch stop
+```
+
+4. install new elasticsearch version
+```
+deb http://packages.elasticsearch.org/elasticsearch/{{ elk_elasticsearch.version }}/debian stable main
+apt-get install elasticsearch
+```
+
+5. wait for yellow
+```
+curl -XGET 'http://localhost:9200/_cluster/health?pretty=true'
+```
+
+6. activate shard allocation again:
+```
+curl -XPUT http://localhost:9200/_cluster/settings -d '{
+  "persistent": {
+    "cluster.routing.allocation.enable": "all"
+  }
+}'
+```
+
+
 ## Helpful Links
 
 https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-health.html
