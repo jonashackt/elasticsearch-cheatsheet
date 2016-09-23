@@ -2,9 +2,9 @@
 Some helpful CURLs for interacting directly with es
 
 #### show es settings
-
+```
 curl -XGET 'http://localhost:9200/_all/_settings?pretty=true'
-
+```
 
 #### get elasticsearch version:
 ```
@@ -87,6 +87,16 @@ done
 ```
 curl -XPOST "http://localhost:9200/elasticsearch/_flush/synced"
 ```
+
+#### set all indices number of replicas to 0 (if you only have on node!)
+```
+curl -XPUT localhost:9200/_settings -d '{
+    "index" : {
+        "number_of_replicas" : 0
+    }
+}'
+```
+
 
 ## Helpful Links
 
