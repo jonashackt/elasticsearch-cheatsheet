@@ -1,6 +1,10 @@
 # elasticsearch-cheatsheet
 Some helpful CURLs for interacting directly with es
 
+#### show es settings
+
+curl -XGET 'http://localhost:9200/_all/_settings?pretty=true'
+
 
 #### get elasticsearch version:
 ```
@@ -27,6 +31,15 @@ curl -XGET http://localhost:9200/_cat/shards
 curl -XGET 'http://localhost:9200/_cat/indices?v'
 ```
 
+#### deactivate shard allocation:
+```
+curl -XPUT http://localhost:9200/_cluster/settings -d '{
+  "persistent": {
+    "cluster.routing.allocation.enable": "none"
+  }
+}'
+```
+
 #### activate shard allocation:
 ```
 curl -XPUT http://localhost:9200/_cluster/settings -d '{
@@ -41,9 +54,9 @@ curl -XPUT http://localhost:9200/_cluster/settings -d '{
 curl -XPOST 'localhost:9200/_cluster/reroute' -d '{
         "commands" : [ {
               "allocate" : {
-                  "index" : "logstash-2016.06.02", 
-                  "shard" : 0, 
-                  "node" : "Persuasion", 
+                  "index" : "logstash-2016.09.21", 
+                  "shard" : 5, 
+                  "node" : "Dormammu", 
                   "allow_primary" : true
               }
             }
