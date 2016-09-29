@@ -290,10 +290,18 @@ curl -XPUT http://localhost:9200/_template/logstash -d '{
 add the line __template_overwrite => true__ to the output-section of your __logstash.conf__:
 
 ```
-elasticsearch {
-		cluster => "yourClusterNameHere",
+output {
+	elasticsearch {
+		hosts => [ "localhost:9200" ]
 		template_overwrite => true
 	}
+}
+```
+
+#### 3. see logstash logs
+
+```
+tail -f /var/log/logstash/logstash.log
 ```
 
 ## and finally: kibana also want´s to be updated:
