@@ -284,6 +284,7 @@ curl -XPUT http://localhost:9200/_template/logstash -d '{
     },
     "aliases" : { }
 }'
+```
 
 #### 2. update logstash config:
 
