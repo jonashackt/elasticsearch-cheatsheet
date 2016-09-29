@@ -285,6 +285,32 @@ curl -XPUT http://localhost:9200/_template/logstash -d '{
     "aliases" : { }
 }'
 
+#### 2. update logstash config:
+
+add the line __template_overwrite => true__ to the output-section of your __logstash.conf__:
+
+```
+elasticsearch {
+		cluster => "yourClusterNameHere",
+		template_overwrite => true
+	}
+```
+
+## and finally: kibana also want´s to be updated:
+
+If kibana says: "unable to fetch mapping", when you want to create an index, then you have to manually create an logstash-index in elasticsearch:
+```
+curl -XPUT 'http://localhost:9200/logstash-2016.09.24/' -d '{
+    "settings" : {
+        "index" : {
+            "number_of_shards" : 3, 
+            "number_of_replicas" : 0 
+        }
+    }
+}'
+```
+
+If the Settings/Indices Setup-Page has an empty __Time-field name__ dropdownbox, do these steps: http://stackoverflow.com/a/29535262/4964553
 
 
 ## Helpful Links
