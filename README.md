@@ -114,6 +114,20 @@ curl -XPUT 'http://localhost:9200/logstash-2016.09.24/' -d '{
  curl -XGET localhost:9200/_template/logstash?pretty=true
 ```
 
+#### activate elasticsearch logging
+
+```
+curl -XPUT 'http://localhost:9200/_cluster/settings/' -d '{
+    "transient" : {
+        "logger.discovery" : "DEBUG"
+    }
+}'
+```
+
+
+
+
+
 ## Upgrade elasticsearch from 1.x to 2.x
 
 
@@ -304,6 +318,24 @@ output {
 ```
 tail -f /var/log/logstash/logstash.log
 ```
+
+#### 4. need more details in logstash logging while having problems with json filter?
+
+Add the following to your logstash output section:
+```
+output {
+  file {
+        path => "/var/log/logstash/jsonparsefailure.debug.log"
+        codec => "rubydebug"
+    }
+}
+```
+
+#### 5. Fix Parsed JSON object/hash requires a target configuration option
+
+If you get {:timestamp=>"2016-09-29T11:10:05.559000+0200", :message=>"Parsed JSON object/hash requires a target configuration option", :source=>"message", :raw=>"", :level=>:warn}
+
+
 
 ## and finally: kibana also want´s to be updated:
 
