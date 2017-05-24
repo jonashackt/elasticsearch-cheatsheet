@@ -1,5 +1,102 @@
 # elasticsearch-cheatsheet
-Some helpful CURLs for interacting directly with es
+
+## How to delete logstash incides, if your disk space is low
+
+[This is a good answer on so](https://stackoverflow.com/questions/33430055/removing-old-indices-in-elasticsearch), but i´ll give you a complete guide here:
+
+If you´re on elasticsearch 2.x like me, the [4.x docs of curator](https://www.elastic.co/guide/en/elasticsearch/client/curator/4.3/index.html) are a good choice :)
+
+#### Install the corresponding elasticsearch-curator version:
+
+* install 5.x, if you have elasticsearch 5.x via `sudo pip install -Iv elasticsearch-curator`
+* install 4.3.1, if you have elasticsearch 2.x via `sudo pip install -Iv elasticsearch-curator==4.3.1`
+* install 3.5.1, if you have elasticsearch 1.x via `sudo pip install -Iv elasticsearch-curator==3.5.1`
+
+> If curator isn´t working (e.g. if you have a already installed but corrupt installation of curator, remove the package with a `sudo rm -rf /usr/local/lib/python2.7/dist-packages/curator`, https://stackoverflow.com/a/14572899/4964553)
+
+#### Create a curator-configfile.yml (or download from here)
+
+You can copy the contents from here - you only need to change the `unit_count: 14` to the quantity of days you don´t want to delete.
+
+[curator-configfile.yml](https://github.com/jonashackt/elasticsearch-cheatsheet/blob/master/curator-configfile.yml):
+
+```
+---
+# Remember, leave a key empty if there is no value.  None will be a string,
+# not a Python "NoneType"
+client:
+  hosts:
+    - 127.0.0.1
+  port: 9200
+  url_prefix:
+  use_ssl: False
+  ssl_no_validate: False
+  timeout: 30
+  master_only: False
+
+logging:
+  loglevel: INFO
+  logfile:
+  logformat: default
+```
+
+#### Create a curator-actionfile.yml (or download from here)
+
+[curator-actionfile.yml](https://github.com/jonashackt/elasticsearch-cheatsheet/blob/master/curator-actionfile.yml):
+
+```
+---
+# Remember, leave a key empty if there is no value.  None will be a string,
+# not a Python "NoneType"
+#
+# Also remember that all examples have 'disable_action' set to True.  If you
+# want to use this action as a template, be sure to set this to False after
+# copying it.
+actions:
+  1:
+    action: delete_indices
+    description: >-
+      Delete indices older than 45 days (based on index name), for logstash-
+      prefixed indices. Ignore the error if the filter does not result in an
+      actionable list of indices (ignore_empty_list) and exit cleanly.
+    options:
+      ignore_empty_list: True
+      timeout_override:
+      continue_if_exception: False
+    filters:
+    - filtertype: pattern
+      kind: prefix
+      value: logstash-
+      exclude:
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y.%m.%d'
+      unit: days
+      unit_count: 14
+      exclude:
+```
+
+#### Copy both files to your linux box that runs elaticsearch
+
+e.g. to folder `/home/userName/.curator`
+
+#### Run curator
+
+Start with a dry-run:
+
+`curator --dry-run --config curator-configfile.yml curator-actionfile.yml`
+
+If that looks good, delete your Indices with:
+
+`curator --config curator-configfile.yml curator-actionfile.yml`
+
+#### Optional: Setup regularly schedule to run the deletion
+
+Put delete-logstash-indices bash script into `/etc/cron.daily` and you´re done with that issue!
+
+
+## Some helpful CURLs for interacting directly with elasticsearch (mostly 2.x tested)
 
 #### show indices settings
 ```

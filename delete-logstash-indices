@@ -1,0 +1,5 @@
+#!/bin/bash
+# Script to delete the log event indices of the elasticsearch weekly
+
+#This will delete the indices of the last 7 days
+curator --config /home/vorsorge/.curator/curator-configfile.yml /home/vorsorge/.curator/curator-actionfile.yml
