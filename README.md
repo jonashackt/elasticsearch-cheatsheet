@@ -128,6 +128,43 @@ curl -XGET http://localhost:9200/_cat/shards
 curl -XGET 'http://localhost:9200/_cat/indices?v'
 ```
 
+#### allocate UNASSIGNED shards
+
+One specific:
+```
+curl -XPOST 'localhost:9200/_cluster/reroute' -d '{
+        "commands" : [ {
+              "allocate" : {
+                  "index" : "logstash-2017.12.09",
+                  "shard" : 0,
+                  "node" : "Human Torch II",
+                  "allow_primary" : true
+              }
+            }
+        ]
+    }'
+```
+
+All of them:
+```
+curl -XGET http://localhost:9200/_cat/shards | grep UNASSIGNED | awk '{print 1,2}' | while read var_index var_shard; do
+    curl -XPOST 'localhost:9200/_cluster/reroute' -d '{
+        "commands" : [ {
+              "allocate" : {
+                  "index" : "$var_index",
+                  "shard" : $var_shard,
+                  "node" : "Human Torch II",
+                  "allow_primary" : true
+              }
+            }
+        ]
+    }'
+    sleep 5;
+done
+```
+
+
+
 #### deactivate shard allocation:
 ```
 curl -XPUT http://localhost:9200/_cluster/settings -d '{
